@@ -1,4 +1,3 @@
-# FILE: src/git_flash/server.py
 import subprocess
 from typing import Any
 

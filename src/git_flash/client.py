@@ -79,7 +79,7 @@ async def _run_generative_git_flow(instruction: str, dry_run: bool):
         ]
     )
 
-    model = genai.GenerativeModel(model_name="gemini-1.5-flash", tools=[git_tool])
+    model = genai.GenerativeModel(model_name="gemini-2.5-flash-preview-05-20", tools=[git_tool])
     chat = model.start_chat()
     response = await chat.send_message_async(instruction)
 
@@ -95,11 +95,11 @@ async def _run_generative_git_flow(instruction: str, dry_run: bool):
                 console.print("[bold magenta]-- DRY RUN: SKIPPING COMMAND --[/bold magenta]")
                 tool_output = {"stdout": "Dry run mode, command not executed.", "stderr": "", "return_code": 0}
             else:
-                tool_output = await client.call_tool(
+                tool_result = await client.call_tool(
                     "run_git_command",
                     {"command": command, "working_directory": os.getcwd()},
                 )
-                tool_output = tool_output[0].text  # The tool returns a JSON string
+                tool_output = tool_result[0].text  # The tool returns a JSON string
             
             console.print(Panel(f"[bold]Result:[/bold]\n{tool_output}", border_style="dim", expand=False))
             response = await chat.send_message_async(
@@ -130,7 +130,7 @@ async def _run_auto_commit(dry_run: bool):
 
     prompt = f"Based on the following git diff, generate a concise and descriptive commit message following the Conventional Commits specification:\n\n{diff_process.stdout}"
     
-    model = genai.GenerativeModel(model_name="gemini-1.5-flash")
+    model = genai.GenerativeModel(model_name="gemini-2.5-flash-preview-05-20")
     response = await model.generate_content_async(prompt)
     commit_message = response.text.strip()
     
@@ -174,8 +174,8 @@ def main_callback(
     """
     An AI assistant for git operations.
 
-    - Provide an instruction in natural language: `git flash "create a new branch called hotfix and switch to it"`
-    - Provide a specific commit message: `git flash -m "fix: resolve issue #123"`
+    - Provide an instruction in natural language: `git-flash "create a new branch called hotfix and switch to it"`
+    - Provide a specific commit message: `git-flash -m "fix: resolve issue #123"`
     - Run with no arguments for an auto-generated commit message.
     """
     if ctx.invoked_subcommand is not None:

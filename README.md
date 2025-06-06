@@ -44,7 +44,7 @@ git flash "show me all the branches"
 If you know what you want to commit, use the -m or --message option. This will stage all current changes and commit with your message.
 
 ```bash
-git mcp -m "feat: add user authentication endpoint"
+git flash -m "feat: add user authentication endpoint"
 ```
 
 ### Dry Run
@@ -52,5 +52,5 @@ git mcp -m "feat: add user authentication endpoint"
 For any of the modes, you can add the --dry-run flag to see what commands the agent would run without actually executing them. This is great for safety and testing.
 
 ```bash
-git mcp "create a hotfix branch and merge it into main" --dry-run
+git flash "create a hotfix branch and merge it into main" --dry-run
 ```
