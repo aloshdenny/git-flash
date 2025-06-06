@@ -1,4 +1,3 @@
-# FILE: README.md
 # Git MCP Assistant
 
 This tool uses FastMCP and the Google Gemini API to provide an AI-powered git assistant. It can function as an agent to execute a series of git commands based on natural language, or it can be used to simply generate a commit message for your staged changes.
