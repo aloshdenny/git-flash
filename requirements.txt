@@ -1,0 +1,6 @@
+# FILE: requirements.txt
+fastmcp>=2.6.0
+google-genai
+python-dotenv
+typer
+rich

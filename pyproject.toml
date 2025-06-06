@@ -1,0 +1,26 @@
+# FILE: pyproject.toml
+[project]
+name = "git-flash"
+version = "0.1.0"
+description = "An AI assistant to handle git commits using FastMCP."
+authors = [{ name = "Alosh Denny", email = "aloshdenny@gmail.com" }]
+requires-python = ">=3.10"
+dependencies = [
+    "fastmcp",
+    "google-genai",
+    "python-dotenv",
+    "typer",
+    "rich"
+]
+
+[project.scripts]
+# This creates the `git-flash` executable in your PATH when you install the package.
+# Git will recognize it as a subcommand.
+git-flash = "git_flash.client:cli_app"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/git_flash"]
