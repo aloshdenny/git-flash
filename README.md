@@ -43,14 +43,6 @@ If you know what you want to commit, use the -m or --message option. This will s
 git mcp -m "feat: add user authentication endpoint"
 ```
 
-### Mode 3: Manual Commit Message
-
-If you know what you want to commit, use the -m or --message option. This will stage all current changes and commit with your message.
-
-```bash
-git mcp -m "feat: add user authentication endpoint"
-```
-
 ### Dry Run
 
 For any of the modes, you can add the --dry-run flag to see what commands the agent would run without actually executing them. This is great for safety and testing.
