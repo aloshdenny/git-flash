@@ -15,7 +15,7 @@ This tool uses FastMCP and the Google Gemini API to provide an AI-powered git as
 
 2.  **Install the Package**: Navigate to the `git-flash` directory and install it using `pip`. Using the `-e` flag (editable mode) is recommended for development.
     ```bash
-    pip install -e .
+    pip install git-flash
     ```
     This command installs the `git-flash` command into your system's PATH.
 
