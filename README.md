@@ -1,7 +1,7 @@
 # Git MCP Assistant
 
 <p align="center">
-  <img src="git-flash.png" alt="Git Flash Logo" width="200"/>
+  <img src="git-flash.png" alt="Git Flash Logo"/>
 </p>
 
 This tool uses FastMCP and the Google Gemini API to provide an AI-powered git assistant. It can function as an agent to execute a series of git commands based on natural language, or it can be used to simply generate a commit message for your staged changes.
