@@ -8,6 +8,8 @@ This tool uses FastMCP and the Google Gemini API to provide an AI-powered git as
 
 ## Setup
 
+🎥 [Watch the demo video](git-flash.mp4)
+
 1.  **Set Your API Key**: This tool requires a Gemini API key. The first time you run it, it will prompt you to enter your key and offer to save it to `~/.config/git-flash/.env`. Alternatively, you can set it as an environment variable:
     ```bash
     export GEMINI_API_KEY="your-gemini-api-key"
