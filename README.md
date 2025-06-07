@@ -1,4 +1,4 @@
-# Git MCP Assistant
+# Git Flash: Barry Allen of the CLI
 
 <p align="center">
   <img src="git-flash.png" alt="Git Flash Logo"/>
