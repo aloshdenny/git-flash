@@ -1,13 +1,13 @@
 [project]
 name = "git-flash"
-version = "0.1.8"
+version = "0.1.9"
 description = "An AI assistant for git operations using FastMCP."
 readme = "README.md"
 authors = [{ name = "Alosh Denny", email = "aloshdenny@gmail.com" }]
 requires-python = ">=3.10"
 dependencies = [
     "fastmcp",
-    "google-genai",
+    "google-generativeai",
     "python-dotenv",
     "typer",
     "rich"

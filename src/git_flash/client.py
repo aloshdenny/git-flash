@@ -3,7 +3,7 @@ import asyncio
 import os
 import subprocess
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Any
 
 import typer
 from google import generativeai as genai
@@ -15,7 +15,7 @@ from .server import mcp
 
 cli_app = typer.Typer(
     name="git-flash",
-    help="An AI assistant to handle git commits using FastMCP.",
+    help="An AI assistant to handle git and file system operations using FastMCP.",
     add_completion=False,
     rich_markup_mode="markdown",
 )
@@ -59,53 +59,149 @@ async def _run_generative_git_flow(instruction: str, dry_run: bool):
     """Handles the agentic, multi-turn conversation with Gemini."""
     console.print(Panel(f"▶️  [bold]User Goal:[/bold] {instruction}", border_style="cyan", expand=False))
 
-    # The `run_git_command` tool definition for Gemini
-    git_tool = genai.protos.Tool(
+    # All available tools for the Gemini model
+    available_tools = genai.protos.Tool(
         function_declarations=[
             genai.protos.FunctionDeclaration(
                 name="run_git_command",
-                description="Executes a git command in the current project directory.",
+                description="Executes a git command. Do not include 'git' in the command string.",
+                parameters=genai.protos.Schema(
+                    type=genai.protos.Type.OBJECT,
+                    properties={"command": genai.protos.Schema(type=genai.protos.Type.STRING)},
+                    required=["command"],
+                ),
+            ),
+            genai.protos.FunctionDeclaration(
+                name="list_files",
+                description="Lists files and directories in a specified path. Use '.' for the current directory.",
+                parameters=genai.protos.Schema(
+                    type=genai.protos.Type.OBJECT,
+                    properties={"path": genai.protos.Schema(type=genai.protos.Type.STRING)},
+                    required=["path"],
+                ),
+            ),
+            genai.protos.FunctionDeclaration(
+                name="read_file",
+                description="Reads and returns the content of a specified file.",
+                parameters=genai.protos.Schema(
+                    type=genai.protos.Type.OBJECT,
+                    properties={"path": genai.protos.Schema(type=genai.protos.Type.STRING)},
+                    required=["path"],
+                ),
+            ),
+            genai.protos.FunctionDeclaration(
+                name="write_file",
+                description="Writes or overwrites content to a specified file. Creates the file if it does not exist.",
                 parameters=genai.protos.Schema(
                     type=genai.protos.Type.OBJECT,
                     properties={
-                        "command": genai.protos.Schema(
-                            type=genai.protos.Type.STRING,
-                            description="The git command arguments to run (e.g., 'status', 'branch new-feature'). Do not include 'git'.",
-                        ),
+                        "path": genai.protos.Schema(type=genai.protos.Type.STRING),
+                        "content": genai.protos.Schema(type=genai.protos.Type.STRING),
                     },
-                    required=["command"],
+                    required=["path", "content"],
                 ),
-            )
+            ),
+            genai.protos.FunctionDeclaration(
+                name="move_file",
+                description="Moves or renames a file or directory.",
+                parameters=genai.protos.Schema(
+                    type=genai.protos.Type.OBJECT,
+                    properties={
+                        "source": genai.protos.Schema(type=genai.protos.Type.STRING),
+                        "destination": genai.protos.Schema(type=genai.protos.Type.STRING),
+                    },
+                    required=["source", "destination"],
+                ),
+            ),
+            genai.protos.FunctionDeclaration(
+                name="delete_file",
+                description="Deletes a specified file.",
+                parameters=genai.protos.Schema(
+                    type=genai.protos.Type.OBJECT,
+                    properties={"path": genai.protos.Schema(type=genai.protos.Type.STRING)},
+                    required=["path"],
+                ),
+            ),
+            genai.protos.FunctionDeclaration(
+                name="create_directory",
+                description="Creates a new directory, including any necessary parent directories.",
+                parameters=genai.protos.Schema(
+                    type=genai.protos.Type.OBJECT,
+                    properties={"path": genai.protos.Schema(type=genai.protos.Type.STRING)},
+                    required=["path"],
+                ),
+            ),
+            genai.protos.FunctionDeclaration(
+                name="delete_directory",
+                description="Deletes a directory and all of its contents recursively.",
+                parameters=genai.protos.Schema(
+                    type=genai.protos.Type.OBJECT,
+                    properties={"path": genai.protos.Schema(type=genai.protos.Type.STRING)},
+                    required=["path"],
+                ),
+            ),
+            genai.protos.FunctionDeclaration(
+                name="list_directory_tree",
+                description="Recursively lists the directory tree structure starting at a given path.",
+                parameters=genai.protos.Schema(
+                    type=genai.protos.Type.OBJECT,
+                    properties={"path": genai.protos.Schema(type=genai.protos.Type.STRING)},
+                    required=["path"],  
+                ),
+            ),
+            genai.protos.FunctionDeclaration(
+                name="read_directory_files",
+                description="Reads the contents of all files in the given directory (non-recursive).",
+                parameters=genai.protos.Schema(
+                    type=genai.protos.Type.OBJECT,
+                    properties={"path": genai.protos.Schema(type=genai.protos.Type.STRING)},
+                    required=["path"],
+                ),
+            ),
+            genai.protos.FunctionDeclaration(
+                name="get_current_directory",
+                description="Returns the current working directory path.",
+                parameters=genai.protos.Schema(type=genai.protos.Type.OBJECT, properties={}),
+            ),
         ]
     )
 
-    model = genai.GenerativeModel(model_name="gemini-2.5-flash-preview-05-20", tools=[git_tool])
+    model = genai.GenerativeModel(model_name="gemini-2.5-flash-preview-05-20", tools=[available_tools])
     chat = model.start_chat()
-    response = await chat.send_message_async(instruction)
+    # Provide the initial project context
+    initial_prompt = (
+        f"You are Git Flash, an AI assistant for git and file system operations. "
+        f"You are operating in the directory: {os.getcwd()}. "
+        f"The user's goal is: {instruction}"
+    )
+    response = await chat.send_message_async(initial_prompt)
 
     # In-memory client to our local server
     mcp_client = Client(mcp)
     async with mcp_client as client:
         while response.candidates[0].content.parts and response.candidates[0].content.parts[0].function_call:
             function_call = response.candidates[0].content.parts[0].function_call
-            command = function_call.args["command"]
-            console.print(f"🤖  [bold yellow]Agent wants to run:[/bold yellow] `git {command}`")
+            tool_name = function_call.name
+            tool_args = {key: value for key, value in function_call.args.items()}
+
+            command_display = f"{tool_name}({', '.join(f'{k}={v!r}' for k, v in tool_args.items())})"
+            console.print(f"🤖  [bold yellow]Agent wants to run:[/bold yellow] `{command_display}`")
             
             if dry_run:
                 console.print("[bold magenta]-- DRY RUN: SKIPPING COMMAND --[/bold magenta]")
-                tool_output = {"stdout": "Dry run mode, command not executed.", "stderr": "", "return_code": 0}
+                tool_output: Any = {"status": "Dry run mode, command not executed."}
             else:
-                tool_result = await client.call_tool(
-                    "run_git_command",
-                    {"command": command, "working_directory": os.getcwd()},
-                )
-                tool_output = tool_result[0].text  # The tool returns a JSON string
+                # Add working directory to all tool calls for context and security
+                tool_args["working_directory"] = os.getcwd()
+                tool_result = await client.call_tool(tool_name, tool_args)
+                tool_output = tool_result[0].text if tool_result else "Tool returned no output."
             
             console.print(Panel(f"[bold]Result:[/bold]\n{tool_output}", border_style="dim", expand=False))
+
             response = await chat.send_message_async(
                 genai.protos.Part(
                     function_response=genai.protos.FunctionResponse(
-                        name="run_git_command",
+                        name=tool_name,
                         response={"result": tool_output},
                     )
                 )
@@ -128,7 +224,7 @@ async def _run_auto_commit(dry_run: bool):
         console.print("No staged changes to commit.")
         return
 
-    prompt = f"Based on the following git diff, generate a concise and descriptive commit message following the Conventional Commits specification:\n\n{diff_process.stdout}. Don't use any incline code formatting."
+    prompt = f"Based on the following git diff, generate a concise and descriptive commit message following the Conventional Commits specification:\n\n{diff_process.stdout}. Don't use any incline code formatting. Do not ask any further questions. Just provide the commit message."
     
     model = genai.GenerativeModel(model_name="gemini-2.5-flash-preview-05-20")
     response = await model.generate_content_async(prompt)
@@ -170,11 +266,14 @@ def main_callback(
     dry_run: bool = typer.Option(False, "--dry-run", help="Perform a dry run."),
 ):
     """
-    An AI assistant for git operations.
+    An AI assistant for git and file system operations.
 
     - Provide an instruction in natural language: `git-flash "create a new branch called hotfix and switch to it"`
+    - Manipulate files: `git-flash "read the README.md file and summarize its contents"`
     - Provide a specific commit message: `git-flash -m "fix: resolve issue #123"`
     - Run with no arguments for an auto-generated commit message.
+    - Does not ask for confirmation before executing commands or any further questions.
+    - Use `--dry-run` to simulate actions without making changes.
     """
     if ctx.invoked_subcommand is not None:
         return

@@ -41,6 +41,12 @@ git flash "stash my current work, switch to the 'main' branch, and then apply my
 
 # List all branches, local and remote
 git flash "show me all the branches"
+
+# File and directory creation/deletion
+git flash "create a file named 'docs/plan.md' and write a to-do list for the new feature"
+
+# File and directory manipulation
+git flash git flash "reorganize files as production"
 ```
 
 ### Mode 2: Manual Commit Message
