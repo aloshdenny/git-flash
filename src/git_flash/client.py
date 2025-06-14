@@ -229,6 +229,10 @@ async def _run_auto_commit(dry_run: bool):
     model = genai.GenerativeModel(model_name="gemini-2.5-flash-preview-05-20")
     response = await model.generate_content_async(prompt)
     commit_message = response.text.strip()
+    # Remove surrounding triple backticks if they exist
+    if commit_message.startswith("```") and commit_message.endswith("```"):
+        commit_message = commit_message.strip("`").strip()
+
     
     await _run_manual_commit(commit_message, dry_run)
 
