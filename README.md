@@ -1,7 +1,7 @@
 # Git Flash: Barry Allen of the CLI
 
 <p align="center">
-  <img src="git-flash.png" alt="Git Flash Logo"/>
+  <img src="media/git-flash.png" alt="Git Flash Logo"/>
 </p>
 
 This tool uses FastMCP and the Google Gemini API to provide an AI-powered git assistant. It can function as an agent to execute a series of git commands based on natural language, or it can be used to simply generate a commit message for your staged changes.
@@ -9,7 +9,7 @@ This tool uses FastMCP and the Google Gemini API to provide an AI-powered git as
 ## Setup
 
 <p align="center">
-  <img src="git-flash.gif" alt="Git Flash Setup and Demo" width="1080"/>
+  <img src="media/git-flash.gif" alt="Git Flash Setup and Demo" width="1080"/>
 </p>
 
 1.  **Set Your API Key**: This tool requires a Gemini API key. The first time you run it, it will prompt you to enter your key and offer to save it to `~/.config/git-flash/.env`. Alternatively, you can set it as an environment variable:
@@ -26,6 +26,10 @@ This tool uses FastMCP and the Google Gemini API to provide an AI-powered git as
 ## Usage
 
 You can run the assistant from within **any git repository directory**.
+
+<p align="center">
+  <img src="media/git-flash-v2.gif" alt="File Manipulation with Git Flash" width="1080"/>
+</p>
 
 ### Mode 1: Agentic Flow (Natural Language)
 
