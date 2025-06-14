@@ -46,7 +46,7 @@ git flash "show me all the branches"
 git flash "create a file named 'docs/plan.md' and write a to-do list for the new feature"
 
 # File and directory manipulation
-git flash git flash "reorganize files as production"
+git flash "reorganize files as production"
 ```
 
 ### Mode 2: Manual Commit Message
