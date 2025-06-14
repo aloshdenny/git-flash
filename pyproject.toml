@@ -1,6 +1,6 @@
 [project]
 name = "git-flash"
-version = "0.2.3"
+version = "0.2.4"
 description = "An AI assistant for git operations using FastMCP."
 readme = "README.md"
 authors = [{ name = "Alosh Denny", email = "aloshdenny@gmail.com" }]
