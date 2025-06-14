@@ -224,7 +224,7 @@ async def _run_auto_commit(dry_run: bool):
         console.print("No staged changes to commit.")
         return
 
-    prompt = f"Based on the following git diff, generate a concise and descriptive commit message following the Conventional Commits specification:\n\n{diff_process.stdout}. Don't use any incline code formatting. Do not ask any further questions. Just provide the commit message."
+    prompt = f"Based on the following git diff, generate a concise and descriptive commit message following the Conventional Commits specification:\n\n{diff_process.stdout}. Don't use any inline code formatting. Do not ask any further questions. Just provide the commit message."
     
     model = genai.GenerativeModel(model_name="gemini-2.5-flash-preview-05-20")
     response = await model.generate_content_async(prompt)
